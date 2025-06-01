@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const program_controller_1 = require("../controllers/program.controller");
+const programRoutes = (0, express_1.Router)();
+programRoutes.post("/organization/:orgId/create", program_controller_1.createProgramController);
+programRoutes.get("/organization/:orgId/all", program_controller_1.getAllProgramsController);
+programRoutes.get("/:id/organization/:orgId", program_controller_1.getProgramByIdController);
+programRoutes.put("/:id/organization/:orgId/update", program_controller_1.updateProgramByIdController);
+programRoutes.get("/:id/organization/:orgId/analytics", program_controller_1.getProgramAnalyticsController);
+programRoutes.delete("/:id/organization/:orgId/delete", program_controller_1.deleteProgramByIdController);
+exports.default = programRoutes;

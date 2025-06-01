@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const event_controller_1 = require("../controllers/event.controller");
+const eventRoutes = (0, express_1.Router)();
+eventRoutes.post("/organization/:orgId/create", event_controller_1.createEventController);
+eventRoutes.get("/all", event_controller_1.getAllEventsController);
+eventRoutes.get("/organization/:orgId/all", event_controller_1.getAllEventsInOrganizationController);
+eventRoutes.get("/:id/organization/:orgId", event_controller_1.getEventByIdController);
+eventRoutes.put("/:id/organization/:orgId/update", event_controller_1.updateEventByIdController);
+eventRoutes.delete("/:id/organization/:orgId/delete", event_controller_1.deleteEventByIdController);
+exports.default = eventRoutes;

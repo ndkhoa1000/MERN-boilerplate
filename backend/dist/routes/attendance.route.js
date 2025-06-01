@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const attendance_controller_1 = require("../controllers/attendance.controller");
+const attendanceRoutes = (0, express_1.Router)();
+attendanceRoutes.post("/organization/:orgId/event/:eventId/create", attendance_controller_1.createAttendanceController);
+attendanceRoutes.get("/:id/organization/:orgId", attendance_controller_1.getAttendanceByIdController);
+attendanceRoutes.get("/event/:eventId/organization/:orgId", attendance_controller_1.getAttendancesByEventController);
+attendanceRoutes.get("/user/:userId", attendance_controller_1.getAttendancesByUserController);
+attendanceRoutes.get("/current/user", attendance_controller_1.getCurrentUserAttendancesController);
+attendanceRoutes.put("/:id/organization/:orgId/update", attendance_controller_1.updateAttendanceController);
+attendanceRoutes.delete("/:id/organization/:orgId/delete", attendance_controller_1.deleteAttendanceController);
+attendanceRoutes.delete("/:id/cancel", attendance_controller_1.deleteOwnAttendanceController);
+exports.default = attendanceRoutes;
