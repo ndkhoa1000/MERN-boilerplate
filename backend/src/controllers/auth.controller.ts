@@ -72,23 +72,18 @@ export const loginController = asyncHandler(
 //logout
 export const logoutController = asyncHandler(
     async(req: Request, res: Response) => {
-    req.logOut((err) => {
-        if (err){
-            logger.error("logout failed:" + err.message);
-            return res.status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
-            .json({error:"Cannot logout, please try again later."})
-        };
+    // Client-side is responsible for deleting the JWT.
+    // If you implement refresh tokens, you would invalidate the refresh token here.
+    // For example, by removing it from the database for the logged-in user.
+    // e.g., await invalidateRefreshTokenForUser(req.user._id);
 
-        req.session.destroy((err) => {
-            if(err){
-                logger.error('Session destruction failed:', err);
-                return res.status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
-                .json({error:"Cannot complete logout, please try again later."})
-            }
-            res.clearCookie(config.SESSION_SECRET);
-            return res.status(HTTPSTATUS.OK).json({message: "Logout successfully."})
-        })
-    });
+    // If you implement an access token denylist, add the current token to it.
+    // e.g., await addToDenylist(req.token); // Assuming req.token holds the JWT
+
+    // For now, we just acknowledge.
+    // The actual "logout" happens when the client discards the token.
+    logger.info(`User logout initiated for user ID: ${req.user?._id || 'Unknown'}`);
+    res.status(HTTPSTATUS.OK).json({ message: "You are trying to Logout in server. Please clear your token on the client-side." });
     }
 )
 // get current user profile

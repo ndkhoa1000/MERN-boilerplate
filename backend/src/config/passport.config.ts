@@ -71,10 +71,12 @@ const options: StrategyOptions = {
 passport.use(
     new JwtStrategy(options, async (payload: JwtPayload, done) => {
         try {
-            const user = findUserByIdService(payload.userId)
+            const user = await findUserByIdService(payload.userId)
+            // logger.info("checking user:",user)
             if (!user) {            
                 return done(null, false)
             }
+            return done(null, user)
         } catch (error) {
             return done(error, false)
         }
