@@ -4,21 +4,22 @@ import { registerSchema } from '../validation/auth.validation';
 import { HTTPSTATUS } from '../config/http.config';
 import { registerService } from '../services/auth.service';
 import passport from 'passport';
+import { config } from '../config/app.config';
+import { signJwtToken } from '../utils/jwt';
+import logger from '../utils/logger';
 
 // OAuth
 export const googleLoginCallback = asyncHandler(
     async(req: Request, res: Response) => {
-    // const currentOrganization = req.user?.currentOrganization;
-
-    // if (currentOrganization){
-    //     return res.redirect(
-    //         `${config.FRONTEND_ORIGIN}/organization/${currentOrganization}`
-    //     )
-    // }
-    // return res.redirect(
-    //     `${config.FRONTEND_ORIGIN}/organization/_`
-    // )
-    return res.status(HTTPSTATUS.OK).json("Login via Google successfully.")
+        const jwt = req.jwt;
+    if(!jwt){
+        return res.redirect(
+            `${config.FRONTEND_ORIGIN}?status=failure`
+        )
+    }
+    return res.redirect(
+            `${config.FRONTEND_ORIGIN}?status=success&access_token=${jwt}`
+        )
 })
 
 // register new local user
@@ -48,15 +49,22 @@ export const loginController = asyncHandler(
                 message: info?.message || "Invalid email or password."
             })
         }
-        req.logIn(user, (err) => {
-            if(err){
-                return next(err);
-            }
+        // req.logIn(user, (err) => {
+        //     if(err){
+        //         return next(err);
+        //     }
             
-            return res.status(HTTPSTATUS.OK).json({
-                message: "Logged in successfully.",
-                user,
-            });
+        //     return res.status(HTTPSTATUS.OK).json({
+        //         message: "Logged in successfully.",
+        //         user,
+        //     });
+        // });
+
+        const access_token = signJwtToken({userId:user._id})
+        return res.status(HTTPSTATUS.OK).json({
+            message: "Logged in successfully.",
+            access_token,
+            user,
         });
     })(req, res, next)
 })
@@ -64,23 +72,18 @@ export const loginController = asyncHandler(
 //logout
 export const logoutController = asyncHandler(
     async(req: Request, res: Response) => {
-    req.logOut((err) => {
-        if (err){
-            console.log("logout failed:" + err.message);
-            return res.status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
-            .json({error:"Cannot logout, please try again later."})
-        };
+    // Client-side is responsible for deleting the JWT.
+    // If you implement refresh tokens, you would invalidate the refresh token here.
+    // For example, by removing it from the database for the logged-in user.
+    // e.g., await invalidateRefreshTokenForUser(req.user._id);
 
-        req.session.destroy((err) => {
-            if(err){
-                console.log('Session destruction failed:', err);
-                return res.status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
-                .json({error:"Cannot complete logout, please try again later."})
-            }
-            res.clearCookie('connect.sid'); //test clear cookies
-            return res.status(HTTPSTATUS.OK).json("logout successfully.")
-        });
-        
-    })
-})
+    // If you implement an access token denylist, add the current token to it.
+    // e.g., await addToDenylist(req.token); // Assuming req.token holds the JWT
+
+    // For now, we just acknowledge.
+    // The actual "logout" happens when the client discards the token.
+    logger.info(`User logout initiated for user ID: ${req.user?._id || 'Unknown'}`);
+    res.status(HTTPSTATUS.OK).json({ message: "You are trying to Logout in server. Please clear your token on the client-side." });
+    }
+)
 // get current user profile

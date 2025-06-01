@@ -4,6 +4,7 @@ import UserModel from "../models/user.model";
 import accountModel from "../models/account.model";
 import { NotFoundException, UnauthorizedException } from "../utils/appError";
 import { ProviderEnum } from "../enums/account-provider.enums";
+import logger from "../utils/logger";
 
 export const loginOrCreateAccountService = async (data:{
     provider: string,
@@ -17,7 +18,7 @@ export const loginOrCreateAccountService = async (data:{
         // create an account -> create user -> create account (ref: user)
 
         const session = await mongoose.startSession();
-        console.log('start Session...')
+        logger.info('start Session...')
         try {
             session.startTransaction();
             // check if user exist
@@ -41,13 +42,13 @@ export const loginOrCreateAccountService = async (data:{
                 await account.save({session});
                 
                 await session.commitTransaction();
-                console.log('commit transaction...');
+                logger.info('commit transaction...');
                 session.endSession();
-                console.log('session end. Finish.');
+                logger.info('session end. Finish.');
             }
             return {user};
         } catch (error) {
-            console.log("Error during session...", error)
+            logger.error("Error during session...", error)
             await session.abortTransaction()
             session.endSession();
             throw error;
@@ -64,7 +65,7 @@ export const registerService = async (body: {
 }) => {
     const { email, name, password} = body;
     const session = await mongoose.startSession();
-        console.log('start Session...')
+        logger.info('start Session...')
         try {
             session.startTransaction();
             // check if user exist
@@ -87,13 +88,13 @@ export const registerService = async (body: {
             await account.save({session});
 
             await session.commitTransaction();
-            console.log('commit transaction...');
+            logger.info('commit transaction...');
             session.endSession();
-            console.log('session end. Finish.');
+            logger.info('session end. Finish.');
 
             return { user };
         } catch (error) {
-            console.log("Error during session...", error)
+            logger.error("Error during session...", error)
             await session.abortTransaction()
             session.endSession();
             throw error;
@@ -127,4 +128,11 @@ export const verifyUserService = async({
         throw new UnauthorizedException("Invalid email or password");
     };
     return user.omitPassword();
+}
+
+export const findUserByIdService = async (userId:string) => {
+    const user = await UserModel.findById(userId,{
+        password: false,
+    })
+    return user || null;
 }

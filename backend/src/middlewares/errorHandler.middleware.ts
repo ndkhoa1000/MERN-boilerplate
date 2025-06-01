@@ -3,6 +3,7 @@ import { HTTPSTATUS } from '../config/http.config';
 import { z,ZodError } from 'zod';
 import { ErrorCodeEnum } from '../enums/error-code.enums';
 import { AppError } from '../utils/appError';
+import logger from '../utils/logger';
 
 const formatZodError = (error: z.ZodError) => {
     const errors = error.issues.map((error) => ({
@@ -13,7 +14,7 @@ const formatZodError = (error: z.ZodError) => {
 };
 
 export const errorHandler: ErrorRequestHandler = (error, req, res, next): any => {
-    console.error(`Error occurred on PATH: ${req.path} `, error);
+    logger.error(`Error occurred on PATH: ${req.path} `, error);
     if (error instanceof SyntaxError) {
         return res.status(HTTPSTATUS.BAD_REQUEST).json({
               message: "Invalid JSON format. Please check your request"

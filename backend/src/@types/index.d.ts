@@ -5,5 +5,8 @@ declare global {
         interface User extends UserDocument{
             id?:any
         }
+        interface Request{
+            jwt?:string
+        }
     }
 }
