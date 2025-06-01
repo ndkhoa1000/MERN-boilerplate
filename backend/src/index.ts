@@ -14,30 +14,15 @@ import authRoutes from "./routes/auth.route";
 import userRoutes from "./routes/user.route";
 import { isAuthenticated } from "./middlewares/isAuthenticated.middleware";
 import { passportAuthenticateIWT } from "./config/passport.config";
+import morgan from "morgan";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
 
 app.use(express.json());
+app.use(morgan('dev'));
 app.use(express.urlencoded({extended:true}));
-// app.use(
-//     session({
-//         name:"session",
-//         resave:false,
-//         saveUninitialized: false,
-//         secret:config.SESSION_SECRET,
-//         cookie: {
-//         maxAge:24*60*60*1000, //24h
-//         secure: config.NODE_ENV === "production",
-//         httpOnly:true,
-//         sameSite:"lax"
-//         },
-//     })
-// );
-
 app.use(passport.initialize());
-// app.use(passport.session());
-
 app.use(
     cors({
         origin:config.FRONTEND_ORIGIN,

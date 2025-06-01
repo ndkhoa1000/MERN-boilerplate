@@ -4,6 +4,7 @@ import {StringValue} from "ms";
 const appConfig = () => ({
     NODE_ENV: getEnv("NODE_ENV", "development"),
     PORT:getEnv("PORT","5000"),
+    LOG_LEVEL:getEnv("LOG_LEVEL","info"),
     BASE_PATH:getEnv("BASE_PATH", "/api"),
     MONGO_URI: getEnv("MONGO_URI", "mongodb://localhost:27017/express-mongo"),
 
