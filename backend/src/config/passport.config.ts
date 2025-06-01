@@ -11,6 +11,7 @@ import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from "passport-j
 import { findUserByIdService, loginOrCreateAccountService, verifyUserService } from "../services/auth.service";
 import { signJwtToken } from "../utils/jwt";
 import { UserDocument } from "../models/user.model";
+import logger from "../utils/logger";
 
 passport.use( new GoogleStrategy({
         clientID: config.GOOGLE_CLIENT_ID,
@@ -21,8 +22,8 @@ passport.use( new GoogleStrategy({
     }, async (req: Request, accessToken, refreshToken, profile, done) => {
         try {
             const { email, sub: googleId, picture } = (profile as any)._json;
-            console.log('profile', profile);
-            console.log('googleId', googleId);
+            logger.info(`New user [${profile.displayName}] Log in via Google:`);
+            // logger.info('googleId', googleId);
             if(!googleId){
                 throw new NotFoundException("Google ID (sub) is missing");
             };

@@ -6,6 +6,7 @@ import { registerService } from '../services/auth.service';
 import passport from 'passport';
 import { config } from '../config/app.config';
 import { signJwtToken } from '../utils/jwt';
+import logger from '../utils/logger';
 
 // OAuth
 export const googleLoginCallback = asyncHandler(
@@ -13,11 +14,11 @@ export const googleLoginCallback = asyncHandler(
         const jwt = req.jwt;
     if(!jwt){
         return res.redirect(
-            `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`
+            `${config.FRONTEND_ORIGIN}?status=failure`
         )
     }
     return res.redirect(
-            `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=success&access_token=${jwt}`
+            `${config.FRONTEND_ORIGIN}?status=success&access_token=${jwt}`
         )
 })
 
@@ -73,21 +74,21 @@ export const logoutController = asyncHandler(
     async(req: Request, res: Response) => {
     req.logOut((err) => {
         if (err){
-            console.log("logout failed:" + err.message);
+            logger.error("logout failed:" + err.message);
             return res.status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
             .json({error:"Cannot logout, please try again later."})
         };
 
         req.session.destroy((err) => {
             if(err){
-                console.log('Session destruction failed:', err);
+                logger.error('Session destruction failed:', err);
                 return res.status(HTTPSTATUS.INTERNAL_SERVER_ERROR)
                 .json({error:"Cannot complete logout, please try again later."})
             }
-            res.clearCookie('connect.sid'); //test clear cookies
-            return res.status(HTTPSTATUS.OK).json("logout successfully.")
-        });
-        
-    })
-})
+            res.clearCookie(config.SESSION_SECRET);
+            return res.status(HTTPSTATUS.OK).json({message: "Logout successfully."})
+        })
+    });
+    }
+)
 // get current user profile

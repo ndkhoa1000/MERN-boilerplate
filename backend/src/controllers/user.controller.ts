@@ -1,8 +1,8 @@
-import { Request,Response } from "express";
+import { Request, Response } from "express";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import { HTTPSTATUS } from "../config/http.config";
-import { 
-    getCurrentUserService, 
+import {
+    getCurrentUserService,
     getUserProfileByIdService,
     updateCurrentProfileService,
     deleteUserProfileService
@@ -10,6 +10,7 @@ import {
 import { objectIdSchema } from "../validation/common.validation";
 import { updateUserSchema } from "../validation/user.validation";
 import { BadRequestException } from "../utils/appError";
+import logger from "../utils/logger";
 
 export const getCurrentUserController = asyncHandler(
     async(req: Request, res: Response) => {
@@ -67,7 +68,7 @@ export const deleteUserProfileController = asyncHandler(
         // Clear session
         req.logout((err) => {
             if (err) {
-                console.error("Error during logout after account deletion:", err);
+                logger.error("Error during logout after account deletion:", err);
             }
         });
 

@@ -15,6 +15,7 @@ import userRoutes from "./routes/user.route";
 import { isAuthenticated } from "./middlewares/isAuthenticated.middleware";
 import { passportAuthenticateIWT } from "./config/passport.config";
 import morgan from "morgan";
+import logger from "./utils/logger";
 
 const app = express();
 const BASE_PATH = config.BASE_PATH;
@@ -42,6 +43,6 @@ app.use(`${BASE_PATH}/user`,passportAuthenticateIWT, userRoutes);
 //error Handler should be the last middleware
 app.use(errorHandler); 
 app.listen(config.PORT, async() => {
-    console.log(`server listening on port ${config.PORT} in ${config.NODE_ENV}`)
+    logger.info(`server listening on port ${config.PORT} in ${config.NODE_ENV}`)
     await connectDatabase();
-})
+});
