@@ -3,12 +3,14 @@ import { config } from "./app.config";
 import { ProviderEnum } from "../enums/account-provider.enums";
 import { NotFoundException } from "../utils/appError";
 
-import passport from "passport";
+import passport, { Profile } from "passport";
 import { Strategy as GoogleStrategy} from "passport-google-oauth20";
 import {Strategy as LocalStrategy} from "passport-local";
+import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from "passport-jwt";
 
-import { loginOrCreateAccountService, verifyUserService } from "../services/auth.service";
-import { verify } from "crypto";
+import { findUserByIdService, loginOrCreateAccountService, verifyUserService } from "../services/auth.service";
+import { signJwtToken } from "../utils/jwt";
+import { UserDocument } from "../models/user.model";
 
 passport.use( new GoogleStrategy({
         clientID: config.GOOGLE_CLIENT_ID,
@@ -31,6 +33,8 @@ passport.use( new GoogleStrategy({
                 picture: picture,
                 email: email,
             });
+            const jwt = signJwtToken({userId: user._id});
+            req.jwt = jwt;
             done(null, user);
         } catch (error) {
             done(error, false);
@@ -42,14 +46,43 @@ passport.use( new GoogleStrategy({
 passport.use(new LocalStrategy({
   usernameField: "email",
   passwordField: "password",
-  session:true  
+  session:false
 },async (email, password, done) =>{
     try {
         const user = await verifyUserService({email, password});
-        return done(null, user as any);
+        return done(null, user as UserDocument);
 } catch (error: any) {
         return done(error, false, {message: error.message})
     }
 }));
+
+interface JwtPayload{
+    userId:string;
+}
+
+const options: StrategyOptions = {
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    secretOrKey: config.JWT_SECRET,
+    audience:["user"],
+    algorithms:["HS256"],
+};
+
+passport.use(
+    new JwtStrategy(options, async (payload: JwtPayload, done) => {
+        try {
+            const user = findUserByIdService(payload.userId)
+            if (!user) {            
+                return done(null, false)
+            }
+        } catch (error) {
+            return done(error, false)
+        }
+    })
+)
+
 passport.serializeUser((user:any, done) => done(null, user));
 passport.deserializeUser((user:any, done) => done(null, user));
+
+export const passportAuthenticateIWT = passport.authenticate("jwt",{
+    session: false,
+})

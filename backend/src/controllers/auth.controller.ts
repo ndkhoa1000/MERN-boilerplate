@@ -4,21 +4,21 @@ import { registerSchema } from '../validation/auth.validation';
 import { HTTPSTATUS } from '../config/http.config';
 import { registerService } from '../services/auth.service';
 import passport from 'passport';
+import { config } from '../config/app.config';
+import { signJwtToken } from '../utils/jwt';
 
 // OAuth
 export const googleLoginCallback = asyncHandler(
     async(req: Request, res: Response) => {
-    // const currentOrganization = req.user?.currentOrganization;
-
-    // if (currentOrganization){
-    //     return res.redirect(
-    //         `${config.FRONTEND_ORIGIN}/organization/${currentOrganization}`
-    //     )
-    // }
-    // return res.redirect(
-    //     `${config.FRONTEND_ORIGIN}/organization/_`
-    // )
-    return res.status(HTTPSTATUS.OK).json("Login via Google successfully.")
+        const jwt = req.jwt;
+    if(!jwt){
+        return res.redirect(
+            `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`
+        )
+    }
+    return res.redirect(
+            `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=success&access_token=${jwt}`
+        )
 })
 
 // register new local user
@@ -48,15 +48,22 @@ export const loginController = asyncHandler(
                 message: info?.message || "Invalid email or password."
             })
         }
-        req.logIn(user, (err) => {
-            if(err){
-                return next(err);
-            }
+        // req.logIn(user, (err) => {
+        //     if(err){
+        //         return next(err);
+        //     }
             
-            return res.status(HTTPSTATUS.OK).json({
-                message: "Logged in successfully.",
-                user,
-            });
+        //     return res.status(HTTPSTATUS.OK).json({
+        //         message: "Logged in successfully.",
+        //         user,
+        //     });
+        // });
+
+        const access_token = signJwtToken({userId:user._id})
+        return res.status(HTTPSTATUS.OK).json({
+            message: "Logged in successfully.",
+            access_token,
+            user,
         });
     })(req, res, next)
 })

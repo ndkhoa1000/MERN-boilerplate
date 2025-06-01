@@ -9,12 +9,18 @@ const failedURL = `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`
 // google OAuth routes
 authRoutes.get(
     "/google", 
-    passport.authenticate("google", {scope:["profile", "email"]})
+    passport.authenticate("google", {
+        scope:["profile", "email"],
+        session:false,
+    })
 );
 
 authRoutes.get(
     "/google/callback",
-    passport.authenticate("google", {failureRedirect: failedURL}),
+    passport.authenticate("google", {
+        failureRedirect: failedURL,
+        session:false,
+    }),
     googleLoginCallback
 );
 //local authentication route

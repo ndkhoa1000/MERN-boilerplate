@@ -1,11 +1,14 @@
 import { getEnv } from "../utils/get-env";
-// WARN: env might not read, so when deployment, need debug for ensure env can be read smoothly.
+import {StringValue} from "ms";
+
 const appConfig = () => ({
     NODE_ENV: getEnv("NODE_ENV", "development"),
     PORT:getEnv("PORT","5000"),
     BASE_PATH:getEnv("BASE_PATH", "/api"),
     MONGO_URI: getEnv("MONGO_URI", "mongodb://localhost:27017/express-mongo"),
 
+    JWT_SECRET: getEnv("JWT_SECRET", "jwt-secret-key"),
+    JWT_EXPIRES_IN: getEnv("JWT_EXPIRES_IN", "1D") as StringValue,
     SESSION_SECRET: getEnv("SESSION_SECRET", "some_secret_key"),
     SESSION_EXPIRE_IN: getEnv("SESSION_EXPIRE_IN", "1D"),
 
